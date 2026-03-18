@@ -2,6 +2,9 @@
 <html lang="id" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NeonMart — Marketplace Digital</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -691,24 +694,91 @@ input:checked+.toggle-slider:before{transform:translateX(22px);background:var(--
   .product-grid{grid-template-columns:repeat(2,1fr);}
   .admin-grid{grid-template-columns:repeat(2,1fr);}
 }
+
+/* ══ RECEIPT STYLES ══ */
+.receipt-wrap {
+  background: var(--bg3);
+  border-radius: 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.receipt-header { text-align:center; margin-bottom:12px; }
+.receipt-logo { font-family:var(--font-display); font-size:18px; font-weight:900; color:var(--neon); }
+.receipt-divider { border:none; border-top:1px dashed var(--border2); margin:10px 0; }
+.receipt-row { display:flex; justify-content:space-between; gap:8px; }
+.receipt-row .label { color:var(--text2); }
+.receipt-row .val { font-weight:600; text-align:right; }
+.receipt-total { font-size:15px; font-weight:700; color:var(--neon2); }
+
+/* ══ TUTORIAL ══ */
+.tut-dot {
+  width:10px; height:10px; border-radius:50%;
+  background:var(--border2); cursor:pointer; transition:.2s;
+}
+.tut-dot.active { background:var(--neon); transform:scale(1.3); }
+
+/* ══ SEARCH HIGHLIGHT ══ */
+.search-highlight { background:rgba(0,200,255,0.25); border-radius:3px; padding:0 2px; }
+
+/* ══ RTL SUPPORT ══ */
+[dir="rtl"] .navbar { flex-direction: row-reverse; }
+[dir="rtl"] .cart-item { flex-direction: row-reverse; }
+[dir="rtl"] .autocomplete-item { flex-direction: row-reverse; }
+[dir="rtl"] .modal-actions { flex-direction: row-reverse; }
+[dir="rtl"] .chat-item-top { flex-direction: row-reverse; }
+[dir="rtl"] .prod-meta { flex-direction: row-reverse; }
+
+/* ══ ADMIN EDIT ROW ══ */
+.edit-inline { display:flex; gap:6px; align-items:center; }
+.edit-inline input { background:var(--bg); border:1px solid var(--border2); border-radius:6px; padding:4px 8px; color:var(--text); font-size:12px; width:80px; outline:none; }
+
+/* ══ SEARCH INPUT FOCUS GLOW ══ */
+.navbar-search input:focus { border-color:var(--neon); box-shadow:0 0 0 3px rgba(0,200,255,0.12); }
+
+/* ══ RECENT SEARCH ITEM ══ */
+.recent-item {
+  padding:8px 16px; font-size:13px; cursor:pointer;
+  display:flex; align-items:center; gap:10px; color:var(--text2);
+  transition:background .15s;
+}
+.recent-item:hover { background:rgba(0,200,255,0.08); }
+.recent-clear { padding:4px 16px 8px; font-size:11px; color:var(--neon); cursor:pointer; text-align:right; }
+.recent-clear:hover { text-decoration:underline; }
+
 </style>
 </head>
 <body>
 
+<!-- BUILD: 202603180429 -->
 <!-- ═══════ NAVBAR ═══════ -->
 <nav class="navbar">
   <div class="navbar-logo">⚡NEON<span style="-webkit-text-fill-color:var(--neon2)">MART</span></div>
   <div class="navbar-search">
-    <input type="text" id="searchInput" placeholder="Cari produk..." autocomplete="off">
+    <input type="text" id="searchInput" placeholder="Search products..." autocomplete="off" id="searchInput" onfocus="showSearchDropdown()">
     <span class="search-icon">🔍</span>
-    <div class="autocomplete-box" id="autocompleteBox"></div>
+    <div class="autocomplete-box" id="autocompleteBox">
+      <div id="recent-search-section" style="padding:8px 0;">
+        <div style="padding:6px 16px;font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:1px;">🕐 Recent Searches</div>
+        <div id="recent-list"></div>
+        <div style="padding:6px 16px;font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">🔥 Popular</div>
+        <div id="popular-list"></div>
+      </div>
+    </div>
   </div>
   <div class="navbar-actions">
-    <button class="nav-btn" onclick="goPage('home')" id="nav-home"><span>🏠</span><span>Home</span></button>
-    <button class="nav-btn" onclick="goPage('wishlist')" id="nav-wishlist"><span>❤️</span><span>Wishlist</span></button>
-    <button class="nav-btn" onclick="goPage('cart')" id="nav-cart" style="position:relative"><span>🛒</span><span>Cart</span><span class="badge" id="cart-badge" style="display:none">0</span></button>
-    <button class="nav-btn" onclick="goPage('installments')" id="nav-installments"><span>💳</span><span>Cicilan</span></button>
-    <button class="nav-btn" onclick="goPage('history')" id="nav-history"><span>📜</span><span>History</span></button>
+    <button class="nav-btn" onclick="goPage('home')" id="nav-home"><span>🏠</span><span id="t-home">Home</span></button>
+    <button class="nav-btn" onclick="goPage('wishlist')" id="nav-wishlist"><span>❤️</span><span id="t-wishlist">Wishlist</span></button>
+    <button class="nav-btn" onclick="goPage('cart')" id="nav-cart" style="position:relative"><span>🛒</span><span id="t-cart">Cart</span><span class="badge" id="cart-badge" style="display:none">0</span></button>
+    <button class="nav-btn" onclick="goPage('installments')" id="nav-installments"><span>💳</span><span id="t-cicilan">Installments</span></button>
+    <button class="nav-btn" onclick="goPage('history')" id="nav-history"><span>📜</span><span id="t-history">History</span></button>
+    <select class="filter-select" id="langSelect" onchange="setLang(this.value)" style="padding:7px 10px;border-radius:10px;font-size:12px;cursor:pointer;">
+      <option value="en">🌐 EN</option>
+      <option value="id">🇮🇩 ID</option>
+      <option value="ar">🇸🇦 AR</option>
+      <option value="ja">🇯🇵 JA</option>
+      <option value="ms">🇲🇾 MS</option>
+    </select>
     <button class="nav-btn" onclick="goPage('settings')" id="nav-settings"><span>⚙️</span></button>
   </div>
 </nav>
@@ -988,6 +1058,10 @@ input:checked+.toggle-slider:before{transform:translateX(22px);background:var(--
         <button class="btn btn-danger" onclick="clearAllData()" style="padding:10px 20px;">Hapus Data</button>
       </div>
       <div class="setting-item">
+        <div class="setting-info"><h4>📖 Tutorial</h4><p>Tampilkan panduan penggunaan</p></div>
+        <button class="btn btn-ghost" onclick="showTutorial()" style="padding:10px 20px;">Lihat Tutorial</button>
+      </div>
+      <div class="setting-item">
         <div class="setting-info"><h4>🛡 Admin Panel</h4><p>Akses tersembunyi untuk admin</p></div>
         <button class="btn btn-secondary" onclick="goPage('admin')" style="padding:10px 20px;">Masuk Admin</button>
       </div>
@@ -1191,6 +1265,16 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('tog-dark').checked = settings_data.dark !== false;
   document.getElementById('tog-anim').checked = settings_data.anim !== false;
   document.getElementById('tog-sound').checked = settings_data.sound !== false;
+
+  // Language init
+  const savedLang = localStorage.getItem('nm_lang') || 'en';
+  currentLang = savedLang;
+  const langSel = document.getElementById('langSelect');
+  if (langSel) langSel.value = savedLang;
+  setLang(savedLang);
+
+  // First visit tutorial
+  checkFirstVisit();
 });
 
 // ─── SETTINGS ────────────────────────────────────────────────────
@@ -1337,19 +1421,37 @@ function renderProducts(list) {
       isNew && !p.is_flash ? `<span class="badge-tag badge-new">NEW</span>` : '',
       isHot       ? `<span class="badge-tag badge-hot">🔥 HOT</span>` : '',
       isLim       ? `<span class="badge-tag badge-limited">LIMITED</span>` : '',
-      noStock     ? `<span class="badge-tag badge-expired">HABIS</span>` : '',
     ].filter(Boolean).join('');
+
+    const oosOverlay = noStock ? `
+      <div style="
+        position:absolute;inset:0;
+        background:rgba(0,0,0,0.65);
+        display:flex;flex-direction:column;
+        align-items:center;justify-content:center;
+        border-radius:inherit;z-index:2;
+        gap:6px;
+      ">
+        <div style="font-size:36px;">🚫</div>
+        <div style="
+          font-family:var(--font-display);font-size:13px;font-weight:700;
+          color:#fff;letter-spacing:1px;
+          background:rgba(255,45,120,0.85);
+          padding:4px 14px;border-radius:20px;
+        ">OUT OF STOCK</div>
+      </div>` : '';
 
     const countdownHtml = p.duration ? `<div class="prod-countdown" id="cd-${p.id}">⏱ Menghitung...</div>` : '';
     const stars = '⭐'.repeat(Math.round(p.rating));
 
-    return `<div class="prod-card" style="animation-delay:${i*0.05}s" onclick="openProduct('${p.id}')">
+    return `<div class="prod-card${noStock?' oos-card':''}" style="animation-delay:${i*0.05}s;${noStock?'opacity:.75;':''}cursor:${noStock?'default':'pointer'}" ${noStock?'':'onclick="openProduct(''+p.id+'')"'}>
       <div class="prod-img-wrap">
-        <img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&h=300&fit=crop'">
+        <img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&h=300&fit=crop'" style="${noStock?'filter:grayscale(60%)':''}">
+        ${oosOverlay}
         <div class="prod-badges">${badges}</div>
-        <button class="wishlist-btn ${isWish?'active':''}" onclick="event.stopPropagation();toggleWishlist('${p.id}',this)" title="Wishlist">
+        ${noStock ? '' : `<button class="wishlist-btn ${isWish?'active':''}" onclick="event.stopPropagation();toggleWishlist('${p.id}',this)" title="Wishlist">
           ${isWish?'❤️':'🤍'}
-        </button>
+        </button>`}
       </div>
       <div class="prod-body">
         <div class="prod-name">${p.name}</div>
@@ -1360,12 +1462,13 @@ function renderProducts(list) {
           <span>·</span>
           <span>${p.sold_count} terjual</span>
         </div>
-        <div class="prod-stock" style="color:${p.stock<=3?'var(--neon2)':p.stock<=10?'var(--gold)':'var(--text3)'}">
-          ${p.stock === 0 ? '❌ Stok Habis' : p.stock <= 3 ? `⚠️ Sisa ${p.stock} item!` : `📦 Stok: ${p.stock}`}
+        <div class="prod-stock" style="color:${p.stock===0?'var(--text3)':p.stock<=3?'var(--neon2)':p.stock<=10?'var(--gold)':'var(--text3)'}">
+          ${p.stock === 0 ? '' : p.stock <= 3 ? `⚠️ Sisa ${p.stock} item!` : `📦 Stok: ${p.stock}`}
         </div>
         ${countdownHtml}
-        <button class="prod-btn" onclick="event.stopPropagation();addToCart('${p.id}')" ${noStock?'disabled':''}>
-          ${noStock ? '❌ Habis' : '🛒 Tambah ke Keranjang'}
+        <button class="prod-btn" 
+          ${noStock ? 'disabled style="background:rgba(100,116,139,0.1);border-color:var(--text3);color:var(--text3);cursor:not-allowed;opacity:.5;"' : 'onclick="event.stopPropagation();addToCart(''+p.id+'')"'}>
+          ${noStock ? '🚫 Out of Stock' : '🛒 Tambah ke Keranjang'}
         </button>
       </div>
     </div>`;
@@ -1573,7 +1676,7 @@ async function processCheckout() {
   history_data.unshift(hEntry);
   localStorage.setItem('nm_history', JSON.stringify(history_data));
 
-  // Update stock
+  // Update stock locally first
   cart.forEach(ci => {
     const p = products.find(x => x.id === ci.id);
     if (p) { p.stock = Math.max(0, p.stock - ci.qty); p.sold_count += ci.qty; }
@@ -1586,12 +1689,26 @@ async function processCheckout() {
   playSound('success');
   toast(`✅ Order ${orderId} berhasil! Terima kasih ${username}!`, 'success');
 
-  // Discord webhook
-  await sendDiscordWebhook({
+  // Show receipt BEFORE discord
+  showReceipt({
+    order_id: orderId, username, note, items, total,
+    method: 'LANGSUNG', timestamp: ts, install_detail: null
+  });
+
+  // Sync stok ke Firebase (non-blocking, update semua produk yg berubah)
+  syncStockToFirebase(items.map(i => {
+    const cartItem = history_data[0]?.items?.find?.(x => x.name === i.name);
+    return i;
+  }));
+
+  // Discord webhook (non-blocking)
+  sendDiscordWebhook({
     order_id: orderId, username, note, items, total,
     method: 'LANGSUNG', timestamp: ts
   });
 
+  // Re-render produk supaya tampilan stok langsung update
+  renderProducts();
   renderCart();
 }
 
@@ -1678,11 +1795,25 @@ async function confirmInstallment() {
   });
   localStorage.setItem('nm_history', JSON.stringify(history_data));
 
+  // Kurangi stok produk saat cicilan dikonfirmasi
+  const prod = products.find(x => x.id === p.id);
+  if (prod) { prod.stock = Math.max(0, prod.stock - 1); prod.sold_count += 1; }
+  syncStockToFirebase([{name: p.name, qty: 1}]);
+
   closeInstallModal();
   playSound('success');
   toast(`💳 Cicilan ${orderId} aktif! ${count}x cicilan ${fmtPrice(perPay)}/cicilan`, 'success');
 
-  await sendDiscordWebhook({
+  // Show receipt
+  showReceipt({
+    order_id: orderId, username: 'Cicilan', note: '',
+    items:[{name:p.name, qty:1, price:total}], total,
+    method: 'CICILAN', timestamp: ts,
+    install_detail: { count, perPay, method: installMethod, duration: `${installDuration} minggu` }
+  });
+
+  // Discord (non-blocking)
+  sendDiscordWebhook({
     order_id: orderId, username: 'Cicilan', note: '', method: 'CICILAN',
     items:[{name:p.name,qty:1,price:total}], total, timestamp: ts,
     install_detail: { count, perPay, method: installMethod, duration: `${installDuration} minggu` }
@@ -1805,8 +1936,9 @@ function renderWishlistPage() {
       <div class="prod-body">
         <div class="prod-name">${p.name}</div>
         <div class="prod-price">${fmtPrice(p.price)}</div>
-        <button class="prod-btn" onclick="event.stopPropagation();addToCart('${p.id}')" ${noStock?'disabled':''}>
-          ${noStock ? '❌ Habis' : '🛒 Tambah ke Keranjang'}
+        <button class="prod-btn" 
+          ${noStock ? 'disabled style="background:rgba(100,116,139,0.1);border-color:var(--text3);color:var(--text3);cursor:not-allowed;opacity:.5;"' : 'onclick="event.stopPropagation();addToCart(''+p.id+'')"'}>
+          ${noStock ? '🚫 Out of Stock' : '🛒 Tambah ke Keranjang'}
         </button>
       </div>
     </div>`;
@@ -1878,7 +2010,7 @@ async function renderAdminTable() {
       <td>${p.sold_count}</td>
       <td>
         ${i >= BUILTIN_PRODUCTS.length
-          ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:12px;" onclick="adminDeleteProduct('${p.id}')">🗑 Hapus</button>`
+          ? `<div style="display:flex;gap:6px;"><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px;" onclick="adminEditProduct('${p.id}')">✏️</button><button class="btn btn-danger" style="padding:4px 10px;font-size:12px;" onclick="adminDeleteProduct('${p.id}')">🗑</button></div>`
           : '<span style="font-size:11px;color:var(--text3)">Built-in</span>'}
       </td>
     </tr>`).join('');
@@ -1936,7 +2068,48 @@ async function adminDeleteProduct(id) {
   }
 }
 
-// ─── SEARCH (FUZZY) ──────────────────────────────────────────────
+
+// ─── SYNC STOK KE FIREBASE ───────────────────────────────────────
+async function syncStockToFirebase(soldItems) {
+  try {
+    // Get latest from Firebase
+    const remoteProds = await gistReadProducts();
+    let changed = false;
+
+    // Update stok sesuai yang terjual (match by id dari state lokal)
+    const localChanged = products.filter(lp => {
+      // Cek apakah stok berubah vs remote
+      const remote = remoteProds.find(r => r.id === lp.id);
+      return remote && remote.stock !== lp.stock;
+    });
+
+    if (!localChanged.length) return; // tidak ada perubahan
+
+    // Update remote products dengan stok terbaru dari lokal
+    const updated = remoteProds.map(rp => {
+      const local = products.find(lp => lp.id === rp.id);
+      if (local && local.stock !== rp.stock) {
+        changed = true;
+        return { ...rp, stock: local.stock, sold_count: local.sold_count };
+      }
+      return rp;
+    });
+
+    if (changed) {
+      await gistWriteProducts(updated);
+      localStorage.setItem('nm_products_cache', JSON.stringify(updated));
+      // Re-render tampilan produk dengan stok terbaru
+      renderProducts();
+      renderWishlistPage();
+    }
+  } catch(e) {
+    console.warn('Stock sync gagal (non-critical):', e.message);
+    // Tetap update tampilan dari state lokal walau Firebase gagal
+    renderProducts();
+  }
+}
+
+// ─── SEARCH (FUZZY + RECENT + HIGHLIGHT) ────────────────────────
 function initSearch() {
   const input = document.getElementById('searchInput');
   const box   = document.getElementById('autocompleteBox');
@@ -1946,19 +2119,45 @@ function initSearch() {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       const q = input.value.trim();
-      if (!q) { box.style.display='none'; renderProducts(); return; }
+      const recentSec = document.getElementById('recent-search-section');
+
+      if (!q) {
+        // Show recent/popular when empty
+        if (recentSec) recentSec.style.display = 'block';
+        showSearchDropdown();
+        renderProducts();
+        document.getElementById('prod-count').textContent = `${filteredProducts.length} products`;
+        return;
+      }
+
+      if (recentSec) recentSec.style.display = 'none';
+      addRecentSearch(q);
       const results = fuzzySearch(q, products);
-      showAutocomplete(results.slice(0,5), q);
+      showAutocomplete(results.slice(0, 6), q);
       renderProducts(results);
-      document.getElementById('prod-count').textContent = `${results.length} hasil untuk "${q}"`;
-    }, 200);
+      document.getElementById('prod-count').textContent = `${results.length} ${t('search').includes('Cari') ? 'hasil' : 'results'} for "${q}"`;
+    }, 220);
   });
 
-  input.addEventListener('blur', () => setTimeout(() => box.style.display='none', 200));
+  input.addEventListener('blur', () => setTimeout(() => {
+    document.getElementById('autocompleteBox').style.display = 'none';
+  }, 200));
+
   input.addEventListener('focus', () => {
-    if (input.value.trim()) {
-      const results = fuzzySearch(input.value, products);
-      showAutocomplete(results.slice(0,5), input.value);
+    const q = input.value.trim();
+    if (!q) showSearchDropdown();
+    else {
+      const results = fuzzySearch(q, products);
+      showAutocomplete(results.slice(0, 6), q);
+    }
+  });
+
+  // Keyboard nav
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      box.style.display = 'none';
+      input.value = '';
+      renderProducts();
     }
   });
 }
@@ -1973,28 +2172,21 @@ function levenshtein(a, b) {
 
 function fuzzySearch(query, items) {
   const q = query.toLowerCase();
-  const words = q.split(' ');
+  const words = q.split(' ').filter(Boolean);
   return items.map(p => {
     const name = p.name.toLowerCase();
     const tags = (p.tags || []).join(' ').toLowerCase();
     const cat  = (p.category || '').toLowerCase();
-    const haystack = `${name} ${tags} ${cat}`;
-
-    // Exact match
+    const hay  = `${name} ${tags} ${cat}`;
     if (name.includes(q)) return { p, score: 100 };
-
-    // Word match
-    const wordScore = words.reduce((s, w) => s + (haystack.includes(w) ? 20 : 0), 0);
+    const wordScore = words.reduce((s, w) => s + (hay.includes(w) ? 20 : 0), 0);
     if (wordScore > 0) return { p, score: wordScore };
-
-    // Fuzzy match via Levenshtein on each word of name
     const nameWords = name.split(' ');
     let fuzzyScore = 0;
     words.forEach(w => {
       const best = Math.min(...nameWords.map(nw => levenshtein(w, nw.substring(0, w.length+2))));
       if (best <= 2) fuzzyScore += (3 - best) * 10;
     });
-
     return { p, score: fuzzyScore };
   })
   .filter(x => x.score > 0)
@@ -2002,14 +2194,22 @@ function fuzzySearch(query, items) {
   .map(x => x.p);
 }
 
+function highlightText(text, query) {
+  if (!query) return text;
+  const esc = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(`(${esc})`, 'gi'), '<span class="search-highlight">$1</span>');
+}
+
 function showAutocomplete(results, q) {
   const box = document.getElementById('autocompleteBox');
-  if (!results.length) { box.style.display='none'; return; }
+  const recentSec = document.getElementById('recent-search-section');
+  if (recentSec) recentSec.style.display = 'none';
+  if (!results.length) { box.style.display = 'none'; return; }
   box.innerHTML = results.map(p =>
-    `<div class="autocomplete-item" onclick="openProduct('${p.id}');document.getElementById('autocompleteBox').style.display='none'">
-      <img src="${p.image}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;">
-      <span>${p.name.substring(0,45)}</span>
-      <span style="margin-left:auto;font-size:12px;color:var(--neon2)">${fmtPrice(p.price)}</span>
+    `<div class="autocomplete-item" onclick="openProduct('${p.id}');document.getElementById('autocompleteBox').style.display='none';addRecentSearch('${p.name.substring(0,20).replace(/'/g,'')}')">
+      <img src="${p.image}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" loading="lazy">
+      <span>${highlightText(p.name.substring(0, 45), q)}</span>
+      <span style="margin-left:auto;font-size:12px;color:var(--neon2);white-space:nowrap;">${fmtPrice(p.price)}</span>
     </div>`
   ).join('');
   box.style.display = 'block';
@@ -2347,10 +2547,340 @@ function checkAnnouncementOnLoad() {
   } catch {}
 }
 
+
+// ════════════════════════════════════════════════════════════
+// MULTI-LANGUAGE SYSTEM
+// ════════════════════════════════════════════════════════════
+const LANGS = {
+  en: {
+    home:'Home', wishlist:'Wishlist', cart:'Cart', cicilan:'Installments', history:'History',
+    search:'Search products...', buy:'Buy Now', addCart:'Add to Cart',
+    checkout:'Checkout', cancel:'Cancel', close:'Close',
+    total:'Total', subtotal:'Subtotal', stock:'Stock',
+    soldOut:'Out of Stock', rating:'Rating', sold:'sold',
+    receiptTitle:'PURCHASE RECEIPT', receiptStore:'NeonMart Digital Store',
+    receiptThanks:'Thank you for your purchase!',
+    emptyCart:'Your cart is empty', emptyWish:'Your wishlist is empty',
+    tutTitle:'Welcome to NeonMart!', tutSub:'Quick guide to get started',
+    tut0t:'Smart Search', tut0b:'Type anything in the search bar. Even with typos, we\'ll find it!',
+    tut1t:'Buy Products', tut1b:'Click any product, choose Buy Now or Add to Cart.',
+    tut2t:'Installments', tut2b:'Pay weekly or monthly with flexible duration.',
+    tut3t:'Wishlist', tut3b:'Save products you love with the heart button.',
+    skip:'Skip', next:'Next →', finish:'Let\'s Shop!',
+    fullPayment:'Full Payment', installments:'Installments',
+    durLabel:'Duration', methodLabel:'Payment Method',
+    perPeriod:'Per Period', deadline:'Deadline',
+    adminAdd:'Add Product', adminDel:'Delete', adminEdit:'Edit',
+    filterAll:'All', filterPrice:'Price', filterStock:'Stock',
+  },
+  id: {
+    home:'Home', wishlist:'Wishlist', cart:'Keranjang', cicilan:'Cicilan', history:'Riwayat',
+    search:'Cari produk...', buy:'Beli Sekarang', addCart:'Tambah ke Keranjang',
+    checkout:'Checkout', cancel:'Batal', close:'Tutup',
+    total:'Total', subtotal:'Subtotal', stock:'Stok',
+    soldOut:'Stok Habis', rating:'Rating', sold:'terjual',
+    receiptTitle:'STRUK PEMBELIAN', receiptStore:'NeonMart Digital Store',
+    receiptThanks:'Terima kasih telah berbelanja!',
+    emptyCart:'Keranjang kamu kosong', emptyWish:'Wishlist kamu kosong',
+    tutTitle:'Selamat Datang di NeonMart!', tutSub:'Panduan cepat untuk memulai',
+    tut0t:'Pencarian Pintar', tut0b:'Ketik apa saja di kotak pencarian. Typo pun tetap ketemu!',
+    tut1t:'Beli Produk', tut1b:'Klik produk, pilih Beli Sekarang atau Tambah ke Keranjang.',
+    tut2t:'Cicilan', tut2b:'Bayar mingguan atau bulanan dengan durasi fleksibel.',
+    tut3t:'Wishlist', tut3b:'Simpan produk favorit dengan tombol hati.',
+    skip:'Lewati', next:'Lanjut →', finish:'Mulai Belanja!',
+    fullPayment:'Bayar Penuh', installments:'Cicilan',
+    durLabel:'Durasi', methodLabel:'Metode Pembayaran',
+    perPeriod:'Per Periode', deadline:'Batas Waktu',
+    adminAdd:'Tambah Produk', adminDel:'Hapus', adminEdit:'Edit',
+    filterAll:'Semua', filterPrice:'Harga', filterStock:'Stok',
+  },
+  ar: {
+    home:'الرئيسية', wishlist:'المفضلة', cart:'السلة', cicilan:'التقسيط', history:'السجل',
+    search:'ابحث عن منتجات...', buy:'اشتري الآن', addCart:'أضف إلى السلة',
+    checkout:'الدفع', cancel:'إلغاء', close:'إغلاق',
+    total:'المجموع', subtotal:'المجموع الفرعي', stock:'المخزون',
+    soldOut:'نفد المخزون', rating:'التقييم', sold:'مُباع',
+    receiptTitle:'إيصال الشراء', receiptStore:'متجر NeonMart الرقمي',
+    receiptThanks:'شكراً لتسوقك معنا!',
+    emptyCart:'سلتك فارغة', emptyWish:'قائمة المفضلة فارغة',
+    tutTitle:'!مرحباً بك في NeonMart', tutSub:'دليل سريع للبدء',
+    tut0t:'البحث الذكي', tut0b:'اكتب أي شيء في شريط البحث، حتى مع الأخطاء الإملائية!',
+    tut1t:'شراء المنتجات', tut1b:'انقر على أي منتج واختر الشراء أو إضافة للسلة.',
+    tut2t:'التقسيط', tut2b:'ادفع أسبوعياً أو شهرياً بمرونة تامة.',
+    tut3t:'المفضلة', tut3b:'احفظ المنتجات المفضلة بزر القلب.',
+    skip:'تخطي', next:'التالي →', finish:'ابدأ التسوق!',
+    fullPayment:'دفع كامل', installments:'تقسيط',
+    durLabel:'المدة', methodLabel:'طريقة الدفع',
+    perPeriod:'لكل فترة', deadline:'الموعد النهائي',
+    adminAdd:'إضافة منتج', adminDel:'حذف', adminEdit:'تعديل',
+    filterAll:'الكل', filterPrice:'السعر', filterStock:'المخزون',
+  },
+  ja: {
+    home:'ホーム', wishlist:'お気に入り', cart:'カート', cicilan:'分割払い', history:'履歴',
+    search:'商品を検索...', buy:'今すぐ購入', addCart:'カートに追加',
+    checkout:'チェックアウト', cancel:'キャンセル', close:'閉じる',
+    total:'合計', subtotal:'小計', stock:'在庫',
+    soldOut:'売り切れ', rating:'評価', sold:'販売済み',
+    receiptTitle:'購入レシート', receiptStore:'NeonMart デジタルストア',
+    receiptThanks:'ご購入ありがとうございます！',
+    emptyCart:'カートは空です', emptyWish:'お気に入りは空です',
+    tutTitle:'NeonMartへようこそ！', tutSub:'クイックスタートガイド',
+    tut0t:'スマート検索', tut0b:'何でも入力してください。タイポがあっても見つかります！',
+    tut1t:'商品を購入', tut1b:'商品をクリックして今すぐ購入またはカートに追加。',
+    tut2t:'分割払い', tut2b:'週払いや月払いで柔軟に支払いできます。',
+    tut3t:'お気に入り', tut3b:'ハートボタンで好きな商品を保存しましょう。',
+    skip:'スキップ', next:'次へ →', finish:'ショッピング開始！',
+    fullPayment:'一括払い', installments:'分割払い',
+    durLabel:'期間', methodLabel:'支払い方法',
+    perPeriod:'1回あたり', deadline:'締め切り',
+    adminAdd:'商品追加', adminDel:'削除', adminEdit:'編集',
+    filterAll:'すべて', filterPrice:'価格', filterStock:'在庫',
+  },
+  ms: {
+    home:'Utama', wishlist:'Senarai Wish', cart:'Troli', cicilan:'Ansuran', history:'Sejarah',
+    search:'Cari produk...', buy:'Beli Sekarang', addCart:'Tambah ke Troli',
+    checkout:'Daftar Keluar', cancel:'Batal', close:'Tutup',
+    total:'Jumlah', subtotal:'Subjumlah', stock:'Stok',
+    soldOut:'Kehabisan Stok', rating:'Penilaian', sold:'terjual',
+    receiptTitle:'RESIT PEMBELIAN', receiptStore:'NeonMart Digital Store',
+    receiptThanks:'Terima kasih kerana membeli-belah!',
+    emptyCart:'Troli anda kosong', emptyWish:'Senarai wish anda kosong',
+    tutTitle:'Selamat Datang ke NeonMart!', tutSub:'Panduan pantas untuk bermula',
+    tut0t:'Carian Pintar', tut0b:'Taip apa sahaja, walaupun silap ejaan tetap jumpa!',
+    tut1t:'Beli Produk', tut1b:'Klik produk, pilih Beli Sekarang atau tambah ke troli.',
+    tut2t:'Ansuran', tut2b:'Bayar mingguan atau bulanan dengan tempoh yang fleksibel.',
+    tut3t:'Senarai Wish', tut3b:'Simpan produk kegemaran dengan butang hati.',
+    skip:'Langkau', next:'Seterusnya →', finish:'Mula Membeli!',
+    fullPayment:'Bayaran Penuh', installments:'Ansuran',
+    durLabel:'Tempoh', methodLabel:'Kaedah Bayaran',
+    perPeriod:'Setiap Tempoh', deadline:'Tarikh Akhir',
+    adminAdd:'Tambah Produk', adminDel:'Padam', adminEdit:'Edit',
+    filterAll:'Semua', filterPrice:'Harga', filterStock:'Stok',
+  }
+};
+
+let currentLang = localStorage.getItem('nm_lang') || 'en';
+
+function t(key) { return (LANGS[currentLang] && LANGS[currentLang][key]) || LANGS['en'][key] || key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('nm_lang', lang);
+  // RTL for Arabic
+  document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  applyLangUI();
+}
+
+function applyLangUI() {
+  const map = {
+    't-home': 'home', 't-wishlist': 'wishlist', 't-cart': 'cart',
+    't-cicilan': 'cicilan', 't-history': 'history',
+  };
+  for (const [id, key] of Object.entries(map)) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t(key);
+  }
+  const si = document.getElementById('searchInput');
+  if (si) si.placeholder = t('search');
+  // Tutorial if open
+  applyTutorialLang();
+}
+
+// ════════════════════════════════════════════════════════════
+// RECEIPT SYSTEM
+// ════════════════════════════════════════════════════════════
+function showReceipt(data) {
+  // data: { order_id, username, items, total, method, install_detail, timestamp }
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const divider = '- - - - - - - - - - - - - - - - - - - - -';
+  const itemLines = data.items.map(i =>
+    `<div class="receipt-row"><span class="label">${i.name.substring(0,24)}</span><span class="val">${fmtPrice(i.price)}</span></div>`
+  ).join('');
+
+  let installDetail = '';
+  if (data.install_detail) {
+    installDetail = `
+      <hr class="receipt-divider">
+      <div class="receipt-row"><span class="label">${t('durLabel')}</span><span class="val">${data.install_detail.duration}</span></div>
+      <div class="receipt-row"><span class="label">${t('methodLabel')}</span><span class="val">${data.install_detail.method}</span></div>
+      <div class="receipt-row"><span class="label">${t('perPeriod')}</span><span class="val">${fmtPrice(data.install_detail.perPay)}</span></div>
+      <div class="receipt-row"><span class="label">x${data.install_detail.count}</span><span class="val">cicilan</span></div>
+    `;
+  }
+
+  document.getElementById('receipt-content').innerHTML = `
+    <button onclick="closeReceipt()" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.2);border:none;border-radius:50%;width:28px;height:28px;color:inherit;cursor:pointer;font-size:16px;">✕</button>
+    <div class="receipt-wrap" id="receipt-inner">
+      <div class="receipt-header">
+        <div class="receipt-logo">⚡ NEONMART</div>
+        <div style="font-size:11px;color:var(--text3);">${t('receiptStore')}</div>
+      </div>
+      <hr class="receipt-divider">
+      <div class="receipt-row"><span class="label">Order ID</span><span class="val" style="font-size:11px;">#${data.order_id}</span></div>
+      <div class="receipt-row"><span class="label">Date</span><span class="val" style="font-size:11px;">${data.timestamp}</span></div>
+      <div class="receipt-row"><span class="label">Customer</span><span class="val">@${data.username}</span></div>
+      <hr class="receipt-divider">
+      ${itemLines}
+      <hr class="receipt-divider">
+      <div class="receipt-row"><span class="label">Method</span><span class="val">${data.method}</span></div>
+      ${installDetail}
+      <hr class="receipt-divider">
+      <div class="receipt-row receipt-total"><span>${t('total')}</span><span>${fmtPrice(data.total)}</span></div>
+      <hr class="receipt-divider">
+      <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:8px;">${t('receiptThanks')}</div>
+      <div style="text-align:center;font-size:10px;color:var(--text3);margin-top:4px;">© ExtensionIBT · NeonMart</div>
+    </div>
+  `;
+  document.getElementById('receiptModal').classList.add('show');
+}
+
+function closeReceipt() {
+  document.getElementById('receiptModal').classList.remove('show');
+}
+
+function copyReceipt() {
+  const el = document.getElementById('receipt-inner');
+  if (!el) return;
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => toast('📋 Struk berhasil dicopy!', 'success')).catch(() => toast('❌ Gagal copy', 'error'));
+}
+
+// ════════════════════════════════════════════════════════════
+// TUTORIAL SYSTEM
+// ════════════════════════════════════════════════════════════
+let tutStep = 0;
+const TUT_STEPS = 4;
+
+function showTutorial() {
+  tutStep = 0;
+  applyTutorialLang();
+  goTutStep(0);
+  document.getElementById('tutorialModal').classList.add('show');
+}
+
+function closeTutorial() {
+  document.getElementById('tutorialModal').classList.remove('show');
+  localStorage.setItem('nm_tutorial_done', '1');
+}
+
+function applyTutorialLang() {
+  const el = (id) => document.getElementById(id);
+  if (el('tut-title')) el('tut-title').textContent = t('tutTitle');
+  if (el('tut-sub'))   el('tut-sub').textContent   = t('tutSub');
+  if (el('tut-skip'))  el('tut-skip').textContent  = t('skip');
+  const steps = ['tut0','tut1','tut2','tut3'];
+  steps.forEach((s,i) => {
+    if (el(`${s}-title`)) el(`${s}-title`).textContent = t(`tut${i}t`);
+    if (el(`${s}-body`))  el(`${s}-body`).textContent  = t(`tut${i}b`);
+  });
+  if (el('tut-next')) el('tut-next').textContent = tutStep >= TUT_STEPS-1 ? t('finish') : t('next');
+}
+
+function goTutStep(step) {
+  document.querySelectorAll('.tut-step').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.tut-dot').forEach(el => el.classList.remove('active'));
+  const stepEl = document.querySelector(`.tut-step[data-step="${step}"]`);
+  const dotEl  = document.querySelector(`.tut-dot[data-i="${step}"]`);
+  if (stepEl) stepEl.style.display = 'block';
+  if (dotEl)  dotEl.classList.add('active');
+  tutStep = step;
+  const nextBtn = document.getElementById('tut-next');
+  if (nextBtn) nextBtn.textContent = step >= TUT_STEPS-1 ? t('finish') : t('next');
+}
+
+function nextTutStep() {
+  if (tutStep >= TUT_STEPS-1) { closeTutorial(); return; }
+  goTutStep(tutStep + 1);
+}
+
+function checkFirstVisit() {
+  if (!localStorage.getItem('nm_tutorial_done')) {
+    setTimeout(showTutorial, 1500);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// RECENT SEARCH SYSTEM
+// ════════════════════════════════════════════════════════════
+const POPULAR_SEARCHES = ['Netflix', 'Spotify', 'Gaming', 'ChatGPT', 'Steam', 'Adobe'];
+
+function getRecentSearches() {
+  return JSON.parse(localStorage.getItem('nm_recent_search') || '[]');
+}
+
+function addRecentSearch(q) {
+  if (!q || q.length < 2) return;
+  let recents = getRecentSearches().filter(r => r !== q);
+  recents.unshift(q);
+  recents = recents.slice(0, 6);
+  localStorage.setItem('nm_recent_search', JSON.stringify(recents));
+}
+
+function clearRecentSearches() {
+  localStorage.removeItem('nm_recent_search');
+  showSearchDropdown();
+}
+
+function showSearchDropdown() {
+  const box = document.getElementById('autocompleteBox');
+  const inp = document.getElementById('searchInput');
+  if (!box || inp?.value.trim()) return;
+  const recents  = getRecentSearches();
+  const recentEl = document.getElementById('recent-list');
+  const popEl    = document.getElementById('popular-list');
+  if (!recentEl || !popEl) return;
+
+  recentEl.innerHTML = recents.length
+    ? recents.map(r => `<div class="recent-item" onclick="doSearch('${r}')">🕐 ${r}</div>`).join('') +
+      `<div class="recent-clear" onclick="clearRecentSearches()">Clear history</div>`
+    : `<div style="padding:6px 16px;font-size:12px;color:var(--text3);">No recent searches</div>`;
+
+  popEl.innerHTML = POPULAR_SEARCHES.map(p =>
+    `<div class="recent-item" onclick="doSearch('${p}')">🔥 ${p}</div>`
+  ).join('');
+
+  box.style.display = 'block';
+}
+
+function doSearch(q) {
+  const inp = document.getElementById('searchInput');
+  if (inp) { inp.value = q; inp.dispatchEvent(new Event('input')); }
+  addRecentSearch(q);
+  document.getElementById('autocompleteBox').style.display = 'none';
+}
+
+// ════════════════════════════════════════════════════════════
+// ADMIN PRODUCT EDIT (inline)
+// ════════════════════════════════════════════════════════════
+async function adminEditProduct(id) {
+  const allProds = await gistReadProducts();
+  const p = allProds.find(x => x.id === id);
+  if (!p) return;
+  const newName  = prompt('Nama produk:', p.name);
+  if (newName === null) return;
+  const newPrice = parseFloat(prompt('Harga:', p.price));
+  const newStock = parseInt(prompt('Stok:', p.stock));
+  if (isNaN(newPrice) || isNaN(newStock)) { toast('❌ Input tidak valid!', 'error'); return; }
+  p.name  = newName || p.name;
+  p.price = newPrice;
+  p.stock = Math.max(0, newStock);
+  const updated = allProds.map(x => x.id === id ? p : x);
+  toast('⏳ Menyimpan perubahan...', 'info');
+  try {
+    await gistWriteProducts(updated);
+    localStorage.setItem('nm_products_cache', JSON.stringify(updated));
+    await loadProducts();
+    await renderAdminTable();
+    toast('✅ Produk berhasil diupdate!', 'success');
+  } catch(e) { toast('❌ Gagal update: ' + e.message, 'error'); }
+}
+
 // Close modals on overlay click
 document.getElementById('productModal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
 document.getElementById('installModal').addEventListener('click', function(e) { if(e.target===this) closeInstallModal(); });
 document.getElementById('checkoutModal').addEventListener('click', function(e) { if(e.target===this) closeCheckoutModal(); });
+document.getElementById('receiptModal').addEventListener('click', function(e) { if(e.target===this) closeReceipt(); });
+document.getElementById('tutorialModal').addEventListener('click', function(e) { if(e.target===this) closeTutorial(); });
 </script>
 
 <!-- ═══════ COPYRIGHT FOOTER ═══════ -->
@@ -2373,6 +2903,65 @@ document.getElementById('checkoutModal').addEventListener('click', function(e) {
 </div>
 
 
+
+<!-- ═══════ RECEIPT MODAL ═══════ -->
+<div class="modal-overlay" id="receiptModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-body" style="padding:0;">
+      <div id="receipt-content" style="padding:28px;font-family:'Courier New',monospace;font-size:13px;line-height:1.8;position:relative;">
+        <button onclick="closeReceipt()" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.2);border:none;border-radius:50%;width:28px;height:28px;color:inherit;cursor:pointer;font-size:16px;">✕</button>
+        <!-- Content injected by JS -->
+      </div>
+      <div style="padding:0 28px 20px;display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="copyReceipt()" style="flex:1;">📋 Copy Struk</button>
+        <button class="btn btn-ghost" onclick="closeReceipt()" style="flex:1;">✕ Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ TUTORIAL MODAL ═══════ -->
+<div class="modal-overlay" id="tutorialModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-body">
+      <h2 style="font-family:var(--font-display);color:var(--neon);margin-bottom:6px;font-size:18px;" id="tut-title">👋 Welcome to NeonMart!</h2>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px;" id="tut-sub">Quick guide to get started</p>
+      <div id="tut-steps">
+        <div class="tut-step active" data-step="0">
+          <div style="font-size:48px;text-align:center;margin-bottom:12px;">🔍</div>
+          <h3 style="text-align:center;margin-bottom:8px;" id="tut-s0-title">Smart Search</h3>
+          <p style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7;" id="tut-s0-body">Type anything in the search bar. Even with typos, we'll find what you're looking for!</p>
+        </div>
+        <div class="tut-step" data-step="1" style="display:none;">
+          <div style="font-size:48px;text-align:center;margin-bottom:12px;">🛒</div>
+          <h3 style="text-align:center;margin-bottom:8px;" id="tut-s1-title">Buy Products</h3>
+          <p style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7;" id="tut-s1-body">Click any product, choose Buy Now or Add to Cart. Then checkout when ready!</p>
+        </div>
+        <div class="tut-step" data-step="2" style="display:none;">
+          <div style="font-size:48px;text-align:center;margin-bottom:12px;">💳</div>
+          <h3 style="text-align:center;margin-bottom:8px;" id="tut-s2-title">Installments</h3>
+          <p style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7;" id="tut-s2-body">Can't pay all at once? Choose Installments! Pay weekly or monthly with flexible duration.</p>
+        </div>
+        <div class="tut-step" data-step="3" style="display:none;">
+          <div style="font-size:48px;text-align:center;margin-bottom:12px;">❤️</div>
+          <h3 style="text-align:center;margin-bottom:8px;" id="tut-s3-title">Wishlist</h3>
+          <p style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7;" id="tut-s3-body">Save products you love with the heart button. Find them anytime in your Wishlist!</p>
+        </div>
+      </div>
+      <!-- Dots -->
+      <div style="display:flex;justify-content:center;gap:8px;margin:20px 0;" id="tut-dots">
+        <div class="tut-dot active" data-i="0" onclick="goTutStep(0)"></div>
+        <div class="tut-dot" data-i="1" onclick="goTutStep(1)"></div>
+        <div class="tut-dot" data-i="2" onclick="goTutStep(2)"></div>
+        <div class="tut-dot" data-i="3" onclick="goTutStep(3)"></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" onclick="closeTutorial()" style="flex:1;" id="tut-skip">Skip</button>
+        <button class="btn btn-primary" onclick="nextTutStep()" style="flex:1;" id="tut-next">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- ═══════ SHUTDOWN SCREEN ═══════ -->
 <div id="shutdown-screen" style="display:none;position:fixed;inset:0;z-index:99998;background:#0a0005;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
   <div style="font-size:80px;animation:flash 1s infinite;margin-bottom:24px;">🔴</div>
